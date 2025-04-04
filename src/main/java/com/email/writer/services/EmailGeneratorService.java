@@ -4,16 +4,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.email.writer.models.EmailRequest;
+
+import lombok.AllArgsConstructor;
+
 import com.email.writer.helpers.BuildPrompt;
 import com.email.writer.helpers.ExtractResponseContent;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-
+@AllArgsConstructor
 @Service
-public class EmailGeneratorService {
+    public class EmailGeneratorService {
 
     private final WebClient webClient;
 
@@ -27,10 +29,8 @@ public class EmailGeneratorService {
         this.webClient = webClient;     
     }
 
-    @Autowired
     private BuildPrompt buildPrompt;
 
-    @Autowired
     private ExtractResponseContent extractResponse;
 
     public String generateEmail(EmailRequest emailRequest) {
