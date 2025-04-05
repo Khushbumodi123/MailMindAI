@@ -1,9 +1,11 @@
 package com.email.writer.helpers;
 
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
+@Component
 public class ExtractResponseContent {
 
     public String extractResponseContent(String response) {
