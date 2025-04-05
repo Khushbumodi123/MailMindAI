@@ -1,7 +1,10 @@
 package com.email.writer.helpers;
 
+import org.springframework.stereotype.Component;
+
 import com.email.writer.models.EmailRequest;
 
+@Component
 public class BuildPrompt {
     public String buildPrompt(EmailRequest emailRequest) {
         StringBuilder prompt = new StringBuilder();
