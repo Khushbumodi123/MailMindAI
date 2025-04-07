@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class EmailRequest{
-    private String Content;
+    private String content;
     private String tone;
 }

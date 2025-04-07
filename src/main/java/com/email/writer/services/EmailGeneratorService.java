@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 @Service
 public class EmailGeneratorService {
 
-    private final WebClient webClient;
+    
 
     @Value("${gemini.api.url}")
     private String geminiApiUrl;
@@ -23,15 +23,22 @@ public class EmailGeneratorService {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
+    // Constructor injection of WebClient.Builder
+    private final WebClient webClient;
     public EmailGeneratorService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();     
     }
 
+    // Field injection of BuildPrompt
     @Autowired
     private BuildPrompt buildPrompt;
 
-    @Autowired
+    //Setter injection of ExtractResponseContent
     private ExtractResponseContent extractResponse;
+    @Autowired
+    public void setExtractResponse(ExtractResponseContent extractResponse) {
+        this.extractResponse = extractResponse;
+    }
 
     public String generateEmail(EmailRequest emailRequest) {
         //Build a prompt
