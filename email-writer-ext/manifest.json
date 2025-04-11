@@ -1,0 +1,10 @@
+{
+    "name": "MailMind AI",
+    "description": "AI-Powered Email Assistant",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+      "default_popup": "emailWriterExt.html",
+      "default_icon": "MailMindAIExtLogo.png"
+    }
+  }
