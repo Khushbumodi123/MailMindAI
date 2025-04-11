@@ -1,35 +1,114 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+  CircularProgress
+} from '@mui/material';
+import axios from 'axios';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [content, setContent] = useState('');
+  const [tone, setTone] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [generatedReply, setGeneratedReply] = useState('');
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError('');
+    setGeneratedReply('');
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/email/generate', {
+        content,
+        tone
+      });
+      setGeneratedReply(typeof response.data === 'string' ? response.data : JSON.stringify(response.data));
+
+      // if (response.data && response.data.reply) {
+      //   setGeneratedReply(response.data.reply);
+      // } else {
+      //   setError('Invalid response from server');
+      // }
+    } catch (error) {
+      setError('Something went wrong. Please try again later.');
+      console.error('Error generating reply:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" align="center" gutterBottom>
+        Email Reply Generator
+      </Typography>
+      <Box sx={{ mx: 3 }}>
+        <TextField
+          fullWidth
+          multiline
+          rows={6}
+          label="Original Email Content"
+          variant="outlined"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="tone-label">Tone (Optional)</InputLabel>
+          <Select
+            labelId="tone-label"
+            value={tone}
+            onChange={(e) => setTone(e.target.value)}
+            label="Tone (Optional)"
+          >
+            <MenuItem value="">None</MenuItem>
+            <MenuItem value="professional">Professional</MenuItem>
+            <MenuItem value="friendly">Friendly</MenuItem>
+            <MenuItem value="casual">Casual</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Button 
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={!content || loading}
+          fullWidth
+        >
+          {loading ? <CircularProgress size={24} /> : 'Generate Reply'}
+        </Button>
+      </Box>
+
+      {error && (
+        <Typography color="error" align="center" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+
+      {generatedReply && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6" component="h2" gutterBottom>
+            Generated Reply
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={6}
+            variant="outlined"
+            value={generatedReply}
+          />
+        </Box>
+      )}
+    </Container>
+  );
 }
 
-export default App
+export default App;
