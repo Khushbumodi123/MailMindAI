@@ -3,6 +3,23 @@
     "description": "AI-Powered Email Assistant",
     "version": "1.0",
     "manifest_version": 3,
+    "permissions": [
+      "storage",
+      "activeTab"],
+      "host_permissions": [
+        "https://mail.google.com/*",
+        "https://outlook.live.com/*",
+        "https://outlook.office.com/*",
+        "https://www.google.com/*",
+        "https://www.bing.com/*",
+        "http://localhost:8080/*"
+      ],
+    "content_scripts": [
+      {
+        "matches": ["https://mail.google.com/*", "https://outlook.live.com/*", "https://outlook.office.com/*"],
+        "js": ["content.js"]
+      }
+    ],
     "action": {
       "default_popup": "emailWriterExt.html",
       "default_icon": "MailMindAIExtLogo.png"
