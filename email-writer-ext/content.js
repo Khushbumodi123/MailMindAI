@@ -1,0 +1,1 @@
+console.log("MailMinded AI - Content Script Loaded");
