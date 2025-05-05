@@ -17,7 +17,15 @@
     "content_scripts": [
       {
         "matches": ["https://mail.google.com/*", "https://outlook.live.com/*", "https://outlook.office.com/*"],
-        "js": ["content.js"]
+        "js": ["content.js"],
+        "css": ["content.css"],
+        "run_at": "document_end"
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["MailMindAIExtLogo.png"],
+        "matches": ["<all_urls>"]
       }
     ],
     "action": {
