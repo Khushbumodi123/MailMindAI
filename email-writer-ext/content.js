@@ -1,117 +1,128 @@
-console.log("MailMinded AI - Content Script Loaded");
+console.log("Email Writer Extension - Content Script Loaded");
 
-function createAiButton() {
+function createAIButton() {
     const button = document.createElement('div');
-    button.className = 'T-I J-J5-Ji ao0 v7 T-I-atl L3';
+    button.className = 'T-I J-J5-Ji aoO v7 T-I-atl L3';
     button.style.marginRight = '8px';
+
     button.innerHTML = 'AI Reply';
     button.setAttribute('role', 'button');
     button.setAttribute('data-tooltip', 'Generate AI Reply');
+
     return button;
+
 }
 
-function getEmailContent() {
+function findComposeToolbar() {
+
     const selectors = [
-        '.h7',
-        '.a3s.aiL',
-        '.gmail_quote',
-        '[role="presentation"]',
+        '.btC', '.aDh', '[role="toolbar"]', '.gU.Up'
     ];
     for (const selector of selectors) {
+
+        const toolbar = document.querySelector(selector);
+        if(toolbar){
+            return toolbar;
+        }
+        return null;
+     
+    }
+
+}
+
+function getEmailContent(){
+    const selectors = [
+        '.h7', '.a3s.aiL', '.gmail_quote', '[role="presentation"]'
+    ];
+
+    for (const selector of selectors) {
+
         const content = document.querySelector(selector);
-        if (content){
+        if(content){
             return content.innerText.trim();
         }
         return '';
+     
     }
+
 }
 
+function injectButton(){
 
-function findComposeToolbar() {
-    const selectors = [
-        '.btC',
-        '.aDh',
-        '[role="dialog"]',
-        '.gU.Up'
-    ];
-    for (const selector of selectors) {
-        const toolBar = document.querySelector(selector);
-        if (toolBar){
-            return toolBar;
-        }
-        return null;
-    }
-}
+    const existingButton = document.querySelector('.ai-reply-button');
+    if(existingButton) existingButton.remove();
 
-
-function injectMailMindedButton() {
-    const existingButton = document.querySelector('.mailminded-ai-button');
-    if (existingButton) existingButton.remove(); 
-
-    const toolBar = findComposeToolbar();
-    if (!toolBar) {
-        console.log("Compose toolbar not found, retrying...");
+    const toolbar = findComposeToolbar();
+    if(!toolbar){
+        console.log("Toolbar not found");
         return;
     }
-    console.log("Compose toolbar found, injecting button.");
-    const button = createAiButton();
-    button.classList.add('mailminded-ai-button');
+    console.log("Toolbar found, creating AI button");
+    const button = createAIButton();
+    button.classList.add('ai-reply-button');
 
     button.addEventListener('click', async () => {
+
         try{
-            button.innerHTML = 'Generating...';
-            button.setAttribute('disabled', 'true');    
+            button.innerHTML='Generating...';
+            button.disabled = true;
 
-            const emailContent =  getEmailContent();
-
-            await fetch('http://localhost:8080/api/email/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            const emailContent = getEmailContent();
+            const response = await fetch('http://localhost:8080/api/email/generate', {
+                method : "POST", headers: {
+                    'Content-Type' : 'application/json' 
                 },
-                body: JSON.stringify({ 
-                    emailContent: emailContent,
-                    tone : 'professional'})
+                body: JSON.stringify({
+                    content : emailContent,
+                    tone: "professional"
+
+                })
             });
 
-            if(!Response.ok) {
-                throw new Error('API request failed');
+            if(!response.ok){
+                throw new Error("API Request failed")
             }
 
             const generatedReply = await response.text();
-            const composeArea = document.querySelector('[role="textbox"],[g_editable="true"]');
-            if (composeArea) {
-                composeArea.focus();
+            const composeBox = document.querySelector('[role="textbox"][g_editable="true"]');
+
+            if(composeBox){
+                composeBox.focus();
                 document.execCommand('insertText', false, generatedReply);
-            } else {
-                console.error("Compose area not found.");
+            } else{
+                console.error("Compose box was not found");
             }
-        } catch (error) {
-            console.error("Error generating AI reply:", error); 
-            alert("Error generating AI reply. Please try again later.");
-        } finally {
+
+        }catch(error){
+            console.log(error);
+            alert("Failed to generate reply");
+
+        } finally{
             button.innerHTML = 'AI Reply';
             button.disabled = false;
         }
-    }
-    );
-    toolBar.insertBefore(button, toolBar.firstChild); 
+        
+
+    });
+
+    toolbar.insertBefore(button, toolbar.firstChild);
 
 }
 
 const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
+    for(const mutation of mutations ){
         const addedNodes = Array.from(mutation.addedNodes);
-        const hasComposeElement = addedNodes.some((node) => {
-            node.nodeType === Node.ELEMENT_NODE && (node.matches('.aDh, .btC, [role="dialog"]') || node.querySelector('.aDh, .btC, [role="dialog"]'));}
-        );
-        if (hasComposeElement) {
-            console.log("Compose element detected, injecting MailMinded AI button.");
-            setTimeout(injectMailMindedButton, 500); 
-        }
-    } 
+        const hasComposeElements = addedNodes.some(node => node.nodeType === Node.ELEMENT_NODE && (node.matches('.aDh, .btC, [role="dialog"]')
+    || node.querySelector('.aDh, .btC, [role="dialog"]')));
 
+    if(hasComposeElements){
+        console.log("Compose Window Detected");
+        setTimeout(injectButton, 500);
+    }
+
+    }
 });
+
 
 observer.observe(document.body, {
     childList: true,
